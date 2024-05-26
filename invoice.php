@@ -72,7 +72,7 @@ class invoicr extends FPDF_rotation
 		$this->due = $date;
 	}
 	
-	function setLogo($logo=0,$maxWidth=100,$maxHeight=0)
+	function setLogo($logo=0,$maxWidth=120,$maxHeight=0)
 	{
 		if($maxWidth and $maxHeight) {
 			$this->maxImageDimensions = array($maxWidth,$maxHeight);
@@ -124,12 +124,13 @@ class invoicr extends FPDF_rotation
 		$p['perRate'] 			= $perAmt;
 		$p['price']			= $price;
 		$p['total']			= $total;
+		$p['discount'] = $discount;
 		
 		if($discount!==false) {
 			$this->firstColumnWidth = 58;
 			$p['discount'] = $discount;
 			if(is_numeric($discount)) {
-				$p['discount']	= $this->currency.' '.number_format($discount,2,$this->referenceformat[0],$this->referenceformat[1]);
+				$p['discount']	= $this->currency.' '.number_format($discount, 0,$this->referenceformat[0],$this->referenceformat[1]);
 			}
 			$this->discountField = true;
 
@@ -248,19 +249,19 @@ class invoicr extends FPDF_rotation
 			$this->SetTextColor($this->color[0],$this->color[1],$this->color[2]);
 			$this->SetDrawColor($this->color[0],$this->color[1],$this->color[2]);
 			$this->SetFont($this->font,'B',10);
-			$width = ($this->document['w']-$this->margins['l']-$this->margins['r'])/3;
+			$width = ($this->document['w']-$this->margins['l']-$this->margins['r'])/2;
 			if(isset($this->flipflop))
 			{
 				$to = $this->l['to'];
 				$from = $this->l['from'];
 				// $ship = $this->l['ship']; // ADDED SHIPPING
 
-				$this->l['to'] = $from;
-				$this->l['from'] = $to;
-				// $this->l['ship'] = $from; // ADDED SHIPPING
+				// $this->l['to'] = $from;
+				// $this->l['from'] = $to;
+				// // $this->l['ship'] = $from; // ADDED SHIPPING
 
-				$to = $this->to;
-				$from = $this->from;
+				// $to = $this->to;
+				// $from = $this->from;
 				// $ship = $this->ship; // ADDED SHIPPING
 
 				$this->to = $from;
@@ -273,18 +274,34 @@ class invoicr extends FPDF_rotation
 			$this->Ln(7);
 			$this->SetLineWidth(0.3);
 			$this->Line($this->margins['l'], $this->GetY(),$this->margins['l']+$width-10, $this->GetY());
-			$this->Line($this->margins['l']+$width, $this->GetY(),$this->margins['l']+$width+$width+$width, $this->GetY());
+			$this->Line($this->margins['l']+$width, $this->GetY(),$this->margins['l']+$width+$width, $this->GetY());
 
 			//Information
 			$this->Ln(5);
 			$this->SetTextColor(50,50,50);
 			$this->SetFont($this->font,'B',10);
+
+			// $this->fromDetails = current($this->from).'-'.end($this->from);
+			// $this->toDetails = current($this->to).'-'.end($this->to);
 			$this->Cell($width,$lineheight,$this->from[0],0,0,'L');
 			$this->Cell($width,$lineheight,$this->to[0],0,0,'L');
+			$this->Ln(6);
+			$this->Cell($width,$lineheight,$this->from[2],0,0,'L');
+			$this->Cell($width,$lineheight,$this->to[6],0,0,'L');
+			$this->Ln(6);
+			$this->Cell($width,$lineheight,$this->from[3],0,0,'L');
+			$this->Cell($width,$lineheight,'',0,0,'L');
+			$this->Ln(6);
+			$this->Cell($width,$lineheight,$this->from[4],0,0,'L');
+			$this->Cell($width,$lineheight,'',0,0,'L');
+			$this->Ln(6);
+			$this->Cell($width,$lineheight,$this->from[6],0,0,'L');
+			$this->Cell($width,$lineheight,'',0,0,'L');
+
 			// $this->Cell(0,$lineheight,$this->ship[0],0,0,'L'); // ADDED SHIPPING
 			$this->SetFont($this->font,'',8);
 			$this->SetTextColor(100,100,100);
-			$this->Ln(7);
+			// $this->Ln(7);
 			// for($i=0; $i<max(count($this->from),count($this->to)); $i++) { // ADDED SHIPPING
 			// 	$this->Cell($width,$lineheight,iconv("UTF-8", "ISO-8859-1",$this->from[$i]),0,0,'L');
 			// 	$this->Cell($width,$lineheight,iconv("UTF-8", "ISO-8859-1",$this->to[$i]),0,0,'L');
@@ -315,11 +332,11 @@ class invoicr extends FPDF_rotation
 
 			$this->Cell($width_other,10,iconv("UTF-8", "ISO-8859-1",strtoupper($this->l['subTotal'])),0,0,'C',0);
 
-			if(isset($this->discountField)) 
-			{
+			// if(isset($this->discountField)) 
+			// {
 				$this->Cell($this->columnSpacing,10,'',0,0,'L',0);
 				$this->Cell($width_other,10,iconv("UTF-8", "ISO-8859-1",strtoupper($this->l['discount'])),0,0,'C',0);
-			}
+			// }
 			$this->Cell($this->columnSpacing,10,'',0,0,'L',0);
 			$this->Cell($width_other,10,iconv("UTF-8", "ISO-8859-1",strtoupper($this->l['total'])),0,0,'C',0);
 			$this->Ln();
@@ -395,21 +412,23 @@ class invoicr extends FPDF_rotation
 
 				$this->Cell($this->columnSpacing,$cHeight,'',0,0,'L',0);
 				$this->Cell($this->columnSpacing,$cHeight,'',0,0,'L',0);
-				$this->Cell($width_other,$cHeight,iconv('UTF-8', 'windows-1252', $this->currency.' '.number_format($item['price'],2,$this->referenceformat[0],$this->referenceformat[1])),0,0,'C',1);
-				if(isset($this->discountField)) 
-				{
+				$this->Cell($width_other,$cHeight,iconv('UTF-8', 'windows-1252', $this->currency.' '.number_format($item['price'],0,$this->referenceformat[0],$this->referenceformat[1])),0,0,'C',1);
+				// if(isset($this->discountField)) 
+				// {
 					$this->Cell($this->columnSpacing,$cHeight,'',0,0,'L',0);
-					if(isset($item['discount']) && $item['discount'] > 0) 
-					{
-						$this->Cell($width_other,$cHeight,iconv('UTF-8', 'windows-1252',$item['discount']),0,0,'C',1);
-					} 
-					else 
-					{
-						$this->Cell($width_other,$cHeight, 0,0,0,'C',1);
-					}
-				}
+				// 	if(isset($item['discount']) && $item['discount'] > 0) 
+				// 	{
+				// 		$this->Cell($width_other,$cHeight,iconv('UTF-8', 'windows-1252',$item['discount']),0,0,'C',1);
+				// 	} 
+				// 	else 
+				// 	{
+				// 		$this->Cell($width_other,$cHeight, 0,0,0,'C',1);
+				// 	}
+				// }
+				$this->Cell($width_other,$cHeight,$item['discount'],0,0,'C',1);
+
 				$this->Cell($this->columnSpacing,$cHeight,'',0,0,'L',0);
-				$this->Cell($width_other,$cHeight,iconv('UTF-8', 'windows-1252', $this->currency.' '.number_format($item['total'],2,$this->referenceformat[0],$this->referenceformat[1])),0,0,'C',1);
+				$this->Cell($width_other,$cHeight,iconv('UTF-8', 'windows-1252', $this->currency.' '.number_format($item['total'],0,$this->referenceformat[0],$this->referenceformat[1])),0,0,'C',1);
 				$this->Ln();
 				$this->Ln($this->columnSpacing);
 			}

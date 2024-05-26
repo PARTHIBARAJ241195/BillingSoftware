@@ -39,6 +39,10 @@ include('functions.php');
 							</select>
 						</div>
 					</div>
+
+					<div class="input-group col-xs-2 float-left btn-group" >
+						<a class="form-control" style="background-color:#00a65a;color:white;" href="invoice-list.php">Manage Invoice</a>
+					</div>
 					<div class="col-xs-4 no-padding-right">
 				        <div class="form-group">
 				            <div class="input-group date" id="invoice_date">
@@ -59,7 +63,7 @@ include('functions.php');
 				            </div>
 				        </div>
 				    </div>
-					<div class="input-group col-xs-4 float-right">
+					<div class="input-group col-xs-2 float-right">
 						<span class="input-group-addon">#<?php echo INVOICE_PREFIX ?></span>
 						<input type="text" name="invoice_id" id="invoice_id" class="form-control required" placeholder="Invoice Number" aria-describedby="sizing-addon1" value="<?php getInvoiceId(); ?>">
 					</div>
