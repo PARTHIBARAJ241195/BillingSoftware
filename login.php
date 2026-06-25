@@ -3,7 +3,7 @@
 * Invoice Management System                                               *
 *                                                                              *
 * Version: 1.0	                                                               *
-* Developer:  Abhishek Raj                                    				   *
+* Developer:  Parthibaraj Raj                                    				   *
 *******************************************************************************/
 
 include('header.php');
